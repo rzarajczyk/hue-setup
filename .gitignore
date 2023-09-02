@@ -1,3 +1,5 @@
 .gradle/
 .idea/
 build/
+src/main/resources/bridge.yaml
+src/main/resources/definitions.yaml
