@@ -3,15 +3,20 @@ package pl.zarajczyk.huesetup.hue.apiclient
 import com.fasterxml.jackson.annotation.JsonIgnore
 import pl.zarajczyk.huesetup.hue.httpclient.*
 
+enum class ModelId(val modelId: String) {
+    AUTOMATION_TIME_EVENT("Automation Time Event"),
+    AUTOMATION_HELPER("Automation Helper")
+}
+
 class V1SensorsModule(private val httpClient: HueHttpClient) {
 
     private fun create(sensor: SensorV1Update) =
         httpClient.post<SensorV1UpdateResponse>("/sensors", sensor, ApiVersion.V1)
 
-    fun createMemorySensor(name: String) = create(
+    fun createMemorySensor(name: String, modelId: ModelId = ModelId.AUTOMATION_TIME_EVENT) = create(
         SensorV1Update(
             name = name,
-            modelid = "Automation Time Event",
+            modelid = modelId.modelId,
             swversion = "1.0",
             type = "CLIPGenericStatus",
             uniqueid = randomString(32),

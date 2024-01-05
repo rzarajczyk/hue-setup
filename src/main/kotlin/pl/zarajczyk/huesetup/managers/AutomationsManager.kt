@@ -1,10 +1,7 @@
 package pl.zarajczyk.huesetup.managers
 
 import pl.zarajczyk.huesetup.configuration.*
-import pl.zarajczyk.huesetup.hue.apiclient.V1RuleAction
-import pl.zarajczyk.huesetup.hue.apiclient.V1RuleCondition
-import pl.zarajczyk.huesetup.hue.apiclient.V1RuleUpdate
-import pl.zarajczyk.huesetup.hue.apiclient.plainId
+import pl.zarajczyk.huesetup.hue.apiclient.*
 import pl.zarajczyk.huesetup.hue.systemclient.HueSystemClient
 
 class AutomationsManager(
@@ -34,7 +31,7 @@ class AutomationsManager(
     private fun createTimeBasedAutomation(def: TimeAutomationDefinition) {
         print("Will create time-based automation: ${def.name} (${def.time.toHueLocalTime()})")
         System.out.flush()
-        val createSensorResponse = hue.apiClient.v1_sensors.createMemorySensor(def.name)
+        val createSensorResponse = hue.apiClient.v1_sensors.createMemorySensor(def.name, ModelId.AUTOMATION_TIME_EVENT)
         hue.apiClient.v1_schedules.createScheduleForUpdatingSensor(
             name = def.name,
             sensorId = createSensorResponse.sensorId,
@@ -108,7 +105,7 @@ class AutomationsManager(
     }
 
     fun createWaitAutomation(name: String, timeout: Timeout, actions: List<AutomationAction>): String {
-        val sensorId = hue.apiClient.v1_sensors.createMemorySensor(name).sensorId
+        val sensorId = hue.apiClient.v1_sensors.createMemorySensor(name, ModelId.AUTOMATION_HELPER).sensorId
         print("\n    - Will create wait automation: $name")
         System.out.flush()
 
