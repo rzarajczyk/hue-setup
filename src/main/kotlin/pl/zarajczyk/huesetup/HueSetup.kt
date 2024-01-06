@@ -20,7 +20,7 @@ class HueSetup(configuration: Configuration) {
         ComparingManager(configuration.definitions.lights, LightV1ComparisonApplier(hue)),
         ComparingManager(configuration.definitions.scenes, SceneComparisonApplier(hue)),
         ComparingManager(configuration.definitions.accessories, AccessoriesComparisonApplier(hue)),
-//        AutomationsManager(configuration.definitions.automations, hue)
+        AutomationsManager(configuration.definitions.automations, hue)
     )
 
     fun run() {
