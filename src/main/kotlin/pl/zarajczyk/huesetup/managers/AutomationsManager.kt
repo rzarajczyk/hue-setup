@@ -93,8 +93,8 @@ class AutomationsManager(
 
         val sensorUpdatedCondition = V1RuleCondition(
             address = "${sensorId}/state/presence",
-            operator = "dx",
-            value = null
+            operator = "ddx",
+            value = def.delay.toDuration()
         )
 
         def.actions

@@ -99,6 +99,7 @@ class DefinitionsConverter {
                         MotionAutomationDefinition(
                             sensor = raw.sensor,
                             motion = raw.motion,
+                            delay = raw.delay.parseTimeout(),
                             actions = raw.actions.convertActions(configurationIndex)
                         )
                     )

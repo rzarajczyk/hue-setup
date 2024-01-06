@@ -106,6 +106,8 @@ data class RawButtonAutomationDefinition(
 data class RawMotionAutomationDefinition(
     val sensor: String,
     val motion: Boolean,
+    @field:Pattern(regexp = TIMEOUT_REGEXP)
+    val delay: String = "0s",
     @field:Valid
     val actions: List<@Valid RawAutomationAction>
 ) : RawAutomationDefinition

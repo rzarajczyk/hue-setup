@@ -103,7 +103,8 @@ data class ButtonAutomationDefinition(
 data class MotionAutomationDefinition(
     val sensor: String,
     val motion: Boolean,
-    override val actions: List<AutomationAction>
+    override val actions: List<AutomationAction>,
+    val delay: Timeout,
 ) : AutomationDefinition
 
 sealed interface AutomationAction {
