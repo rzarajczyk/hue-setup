@@ -16,6 +16,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.6")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
@@ -38,5 +39,5 @@ kotlin {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("pl.zarajczyk.huesetup.MainKt")
 }

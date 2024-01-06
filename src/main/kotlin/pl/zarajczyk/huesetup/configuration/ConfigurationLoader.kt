@@ -6,18 +6,17 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.validation.Validation
-import org.apache.commons.text.StringSubstitutor
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
+import java.io.File
 
 object ConfigurationLoader {
 
-    fun load(): Configuration {
+    fun load(ip: String, token: String, definitionsFile: File): Configuration {
         val om = ObjectMapper(YAMLFactory())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
             .registerKotlinModule()
-        val bridge = om.readValue<Bridge>(resource("/bridge.yaml"))
-        val definitions = om.readValue<RawDefinitions>(resource("/definitions.yaml"))
+        val definitions = om.readValue<RawDefinitions>(definitionsFile)
         val violations = Validation.byDefaultProvider()
             .configure()
             .messageInterpolator(ParameterMessageInterpolator())
@@ -29,18 +28,8 @@ object ConfigurationLoader {
             throw RuntimeException("Validation errors found: ${violations.size} violations")
         }
         return Configuration(
-            bridge = bridge,
+            bridge = Bridge(ip, token),
             definitions = DefinitionsConverter().convert(definitions)
         )
     }
-
-    private fun resource(path: String): String {
-        val text = ConfigurationLoader::class.java
-            .getResourceAsStream(path)
-            ?.bufferedReader()
-            .use { it?.readText() }
-            ?: throw RuntimeException("Resource not found ≪$path≫")
-        return StringSubstitutor(System.getenv()).replace(text)
-    }
-
 }
