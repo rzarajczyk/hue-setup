@@ -16,6 +16,12 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hue-setup-1.0-SNAPSHOT.zip
+          path: build/distributions/hue-setup-1.0-SNAPSHOT.zip
+          retention-days: 90
 
 #      - name: Set up QEMP
 #        uses: docker/setup-qemu-action@v1
