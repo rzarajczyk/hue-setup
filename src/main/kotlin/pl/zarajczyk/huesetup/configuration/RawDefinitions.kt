@@ -7,6 +7,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import pl.zarajczyk.huesetup.configuration.Brightness.Companion.BRIGHTNESS_REGEXP
+import pl.zarajczyk.huesetup.configuration.Color.Companion.COLOR_REGEXP
 import pl.zarajczyk.huesetup.configuration.ColorTemperature.Companion.COLOR_TEMPERATURE_REGEXP
 import pl.zarajczyk.huesetup.configuration.LocalTime.Companion.TIME_REGEXP
 import pl.zarajczyk.huesetup.configuration.LocalTimePeriod.Companion.TIME_PERIOD_REGEXP
@@ -64,6 +65,8 @@ data class RawSceneLightSetup(
     @JsonProperty("color-temperature")
     @field:Pattern(regexp = COLOR_TEMPERATURE_REGEXP)
     val color_temperature: String? = null,
+    @field:Pattern(regexp = COLOR_REGEXP)
+    val color: String? = null,
     @JsonProperty("turned-on")
     val turned_on: Boolean? = null,
     val group: String? = null

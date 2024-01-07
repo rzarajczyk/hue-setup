@@ -1,5 +1,6 @@
 package pl.zarajczyk.huesetup.configuration
 
+import com.github.ajalt.colormath.model.RGB
 import java.math.BigDecimal
 import kotlin.math.roundToInt
 
@@ -55,6 +56,23 @@ data class Brightness(private val percent: BigDecimal) {
                 throw RuntimeException("Invalid brightness $this - out of range 0..100")
             }
             return Brightness(BigDecimal.valueOf(result.toDouble()))
+        }
+    }
+}
+
+data class Color(private val x: Double, private val y: Double) {
+
+    fun toHueX() = x
+    fun toHueY() = y
+
+    companion object {
+        const val COLOR_REGEXP = "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
+
+        fun String.parseColor(): Color {
+            val color = RGB(this)
+            val x = color.toXYZ().toCIExyY().x.toDouble()
+            val y = color.toXYZ().toCIExyY().y.toDouble()
+            return Color(x, y)
         }
     }
 }

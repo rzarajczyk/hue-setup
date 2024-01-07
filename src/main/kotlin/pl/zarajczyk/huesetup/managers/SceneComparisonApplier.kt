@@ -79,7 +79,8 @@ class SceneComparisonApplier(private val hue: HueSystemClient) : ComparisonAppli
                     action = Action(
                         on = setup.turnedOn?.let { OnAction(it) } ?: OnAction(true),
                         dimming = setup.brightness?.let { DimmingAction(it.toHueBrightnessPercentage()) },
-                        color_temperature = setup.colorTemperature?.let { ColorTemperatureAction(it.tuHueMirek()) }
+                        color_temperature = setup.colorTemperature?.let { ColorTemperatureAction(it.tuHueMirek()) },
+                        color = setup.color?.let { ColorAction(Xy(it.toHueX(), it.toHueY())) }
                     )
                 )
             }

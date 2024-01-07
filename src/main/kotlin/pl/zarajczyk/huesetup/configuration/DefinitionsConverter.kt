@@ -1,6 +1,7 @@
 package pl.zarajczyk.huesetup.configuration
 
 import pl.zarajczyk.huesetup.configuration.Brightness.Companion.parseBrightness
+import pl.zarajczyk.huesetup.configuration.Color.Companion.parseColor
 import pl.zarajczyk.huesetup.configuration.ColorTemperature.Companion.parseColorTemperature
 import pl.zarajczyk.huesetup.configuration.ConfiguredGroupReference.Companion.parseConfiguredGroupReference
 import pl.zarajczyk.huesetup.configuration.Timeout.Companion.parseTimeout
@@ -54,11 +55,15 @@ class DefinitionsConverter {
                 group = group.parseConfiguredGroupReference(),
                 setup = raw.setup.map {
                     configurationIndex.validateGroup(it.group)
+                    if (it.color != null && it.color_temperature != null) {
+                        throw RuntimeException("Can't set color and color_temperature at once")
+                    }
                     SceneLightSetup(
                         group = it.group?.parseConfiguredGroupReference(),
                         turnedOn = it.turned_on,
                         brightness = it.brightness?.parseBrightness(),
-                        colorTemperature = it.color_temperature?.parseColorTemperature()
+                        colorTemperature = it.color_temperature?.parseColorTemperature(),
+                        color = it.color?.parseColor()
                     )
                 }
             )

@@ -17,6 +17,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.6")
+    implementation("com.github.ajalt.colormath:colormath:3.3.3")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.7.2")

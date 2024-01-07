@@ -71,7 +71,8 @@ data class SceneAction(
 data class Action(
     val on: OnAction?,
     val dimming: DimmingAction?,
-    val color_temperature: ColorTemperatureAction?
+    val color_temperature: ColorTemperatureAction?,
+    val color: ColorAction?
 )
 
 data class OnAction(
@@ -84,4 +85,13 @@ data class DimmingAction(
 
 data class ColorTemperatureAction(
     val mirek: Int
+)
+
+data class ColorAction(
+    val xy: Xy
+)
+
+data class Xy(
+    val x: Double,
+    val y: Double
 )

@@ -64,6 +64,7 @@ data class LightDefinition(
 data class SceneLightSetup(
     val brightness: Brightness? = null,
     val colorTemperature: ColorTemperature? = null,
+    val color: Color? = null,
     val turnedOn: Boolean? = null,
     val group: ConfiguredGroupReference? = null
 )
