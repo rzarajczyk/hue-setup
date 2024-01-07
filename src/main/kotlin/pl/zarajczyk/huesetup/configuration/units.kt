@@ -1,7 +1,9 @@
 package pl.zarajczyk.huesetup.configuration
 
 import com.github.ajalt.colormath.model.RGB
+import java.lang.Math.pow
 import java.math.BigDecimal
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 data class ConfiguredGroupReference(private val name: String) {
@@ -69,9 +71,16 @@ data class Color(private val x: Double, private val y: Double) {
         const val COLOR_REGEXP = "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
 
         fun String.parseColor(): Color {
-            val color = RGB(this)
-            val x = color.toXYZ().toCIExyY().x.toDouble()
-            val y = color.toXYZ().toCIExyY().y.toDouble()
+            val originalColor = RGB(this)
+//            var r = originalColor.r
+//            var g = originalColor.g
+//            var b = originalColor.b
+//            val red = if ((r > 0.04045f)) ((r + 0.055f) / (1.0f + 0.055f)).toDouble().pow(2.4).toFloat() else (r / 12.92f)
+//            val green = if ((g > 0.04045f)) ((g + 0.055f) / (1.0f + 0.055f)).toDouble().pow(2.4).toFloat() else (g / 12.92f)
+//            val blue = if ((b > 0.04045f)) ((b + 0.055f) / (1.0f + 0.055f)).toDouble().pow(2.4).toFloat() else (b / 12.92f)
+//            val colorAfterGammaCorrection = RGB(red, green, blue)
+            val x = originalColor.toXYZ().toCIExyY().x.toDouble()
+            val y = originalColor.toXYZ().toCIExyY().y.toDouble()
             return Color(x, y)
         }
     }
