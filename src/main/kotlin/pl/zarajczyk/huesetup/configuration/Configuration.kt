@@ -184,3 +184,8 @@ data class AllOffCondition(
 data class TimeOfDayActionCondition(
     val time: LocalTimePeriod
 ) : AutomationActionCondition
+
+data class PressCounterCondition(
+    val ifPressNumber: Int,
+    val nextPressNumber: Int
+) : AutomationActionCondition

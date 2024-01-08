@@ -212,6 +212,7 @@ data class RawSceneAutomationAction(
         JsonSubTypes.Type(value = RawAnyOnCondition::class, name = "any_on"),
         JsonSubTypes.Type(value = RawAllOffCondition::class, name = "all_off"),
         JsonSubTypes.Type(value = RawTimeOfDayActionCondition::class, name = "time_of_day"),
+        JsonSubTypes.Type(value = RawPressCounterCondition::class, name = "press_counter"),
     ]
 )
 sealed interface RawAutomationActionCondition
@@ -221,4 +222,11 @@ data class RawAllOffCondition(val group: String?) : RawAutomationActionCondition
 data class RawTimeOfDayActionCondition(
     @field:Pattern(regexp = TIME_PERIOD_REGEXP)
     val time: String
+) : RawAutomationActionCondition
+
+data class RawPressCounterCondition(
+    @JsonProperty("if-press-number")
+    val ifPressNumber: Int,
+    @JsonProperty("next-press-number")
+    val nextPressNumber: Int
 ) : RawAutomationActionCondition

@@ -12,6 +12,7 @@ class HueSystemClient(val apiClient: HueApiClient) {
     lateinit var lightsByV1Id: Map<String, Light>
     lateinit var zigbeeConnectivity: Map<String, ZigbeeConnectivity>
     lateinit var scenes: Map<String, Scene>
+    lateinit var sensorsV1: Map<String, SensorV1>
 
     init {
         refresh()
@@ -25,6 +26,7 @@ class HueSystemClient(val apiClient: HueApiClient) {
         lightsByV1Id = lights.values.filter { it.id_v1 != null }.associateBy { it.id_v1!! }
         zigbeeConnectivity = apiClient.zigbeeConnectivity.list().associateBy { it.id }
         scenes = apiClient.scenes.list().associateBy { it.id }
+        sensorsV1 = apiClient.v1_sensors.list().associateBy { it.id }
     }
 
     fun <T> dereference(ref: Reference): T = when (ref.rtype) {
@@ -79,6 +81,12 @@ class HueSystemClient(val apiClient: HueApiClient) {
         val zigbeeRef = device.services.find { it.rtype == RType.zigbee_connectivity }
             ?: throw RuntimeException("Device ${device.metadata.name} doesn't have zigbee_connectivity!")
         return dereference<ZigbeeConnectivity>(zigbeeRef).mac_address
+    }
+
+    fun findSensor(name: String, automationMultiplePressesEvent: ModelId): SensorV1 {
+        return sensorsV1.values
+            .find { it.modelid == automationMultiplePressesEvent.modelId && it.name == name }
+            ?: throw RuntimeException("Sensor ${name} doesn't exist!")
     }
 
 }

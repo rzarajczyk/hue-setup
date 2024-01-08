@@ -239,6 +239,7 @@ class DefinitionsConverter {
                 is RawAnyOnCondition -> AnyOnCondition(conditionGroup(raw.group, group, configurationIndex))
                 is RawAllOffCondition -> AllOffCondition(conditionGroup(raw.group, group, configurationIndex))
                 is RawTimeOfDayActionCondition -> TimeOfDayActionCondition(LocalTimePeriod(raw.time))
+                is RawPressCounterCondition -> PressCounterCondition(raw.ifPressNumber, raw.nextPressNumber)
             }
         }
 

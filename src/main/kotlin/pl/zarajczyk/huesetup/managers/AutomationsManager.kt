@@ -59,6 +59,12 @@ class AutomationsManager(
         print("Will create button automation: $name (${def.button})")
         System.out.flush()
 
+        val hasPressCounter = def.actions.any { it.conditions.filterIsInstance<PressCounterCondition>().isNotEmpty() }
+        if (hasPressCounter) {
+            hue.apiClient.v1_sensors.createMemorySensor(name, ModelId.AUTOMATION_MULTIPLE_PRESSES_EVENT)
+            hue.refresh()
+        }
+
         val buttonEventRuleCondition = V1RuleCondition(
             address = "$sensorId/state/buttonevent",
             operator = "eq",
@@ -73,7 +79,7 @@ class AutomationsManager(
 
         def.actions
             .map { createRule(name, it, buttonEventRuleCondition, sensorUpdatedCondition) }
-            .forEach {hue.apiClient.v1_rules.create(it) }
+            .forEach { hue.apiClient.v1_rules.create(it) }
 
         println(" - ✔ CREATED")
     }
@@ -99,7 +105,7 @@ class AutomationsManager(
 
         def.actions
             .map { createRule(name, it, motionCondition, sensorUpdatedCondition) }
-            .forEach {hue.apiClient.v1_rules.create(it) }
+            .forEach { hue.apiClient.v1_rules.create(it) }
 
         println(" - ✔ CREATED")
     }
@@ -123,7 +129,7 @@ class AutomationsManager(
 
         actions
             .map { createRule(name, it, sensorStateCondition, sensorUpdatedCondition) }
-            .forEach {hue.apiClient.v1_rules.create(it) }
+            .forEach { hue.apiClient.v1_rules.create(it) }
 
         println(" - ✔ CREATED")
 
@@ -135,95 +141,137 @@ class AutomationsManager(
         action: AutomationAction,
         vararg additionalConditions: V1RuleCondition
     ): V1RuleUpdate {
+        val ac1 = createActions(action, name)
+        val ac2 = createConditions(action, name)
         return V1RuleUpdate(
             name = name,
-            actions = createActions(action, name),
-            conditions = createConditions(action) + additionalConditions.toList()
+            actions = ac1.actions + ac2.actions,
+            conditions = ac1.conditions + ac2.conditions + additionalConditions.toList()
         )
     }
 
-    private fun createActions(action: AutomationAction, name: String): List<V1RuleAction> = listOf(
+    data class ActionsConditions(val actions: List<V1RuleAction>, val conditions: List<V1RuleCondition>)
+
+    private fun createActions(action: AutomationAction, name: String): ActionsConditions {
+        val actions = mutableListOf<V1RuleAction>()
+        val conditions = mutableListOf<V1RuleCondition>()
         when (action) {
-            is TurnOnAutomationAction -> V1RuleAction(
-                address = "${hue.findGroup(action.group).id_v1}/action",
-                method = "PUT",
-                body = mapOf(
-                    "on" to true,
-                    "transitiontime" to action.transitionTime.toDeciSeconds()
+            is TurnOnAutomationAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findGroup(action.group).id_v1}/action",
+                    method = "PUT",
+                    body = mapOf(
+                        "on" to true,
+                        "transitiontime" to action.transitionTime.toDeciSeconds()
+                    )
                 )
-            )
+            }
 
-            is TurnOffAutomationAction -> V1RuleAction(
-                address = "${hue.findGroup(action.group).id_v1}/action",
-                method = "PUT",
-                body = mapOf(
-                    "on" to false,
-                    "transitiontime" to action.transitionTime.toDeciSeconds()
+            is TurnOffAutomationAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findGroup(action.group).id_v1}/action",
+                    method = "PUT",
+                    body = mapOf(
+                        "on" to false,
+                        "transitiontime" to action.transitionTime.toDeciSeconds()
+                    )
                 )
-            )
+            }
 
-            is ColorTemperatureTransitionAutomationAction -> V1RuleAction(
-                address = "${hue.findGroup(action.group).id_v1}/action",
-                method = "PUT",
-                body = mapOf(
-                    "ct" to action.colorTemperature.tuHueMirek(),
-                    "transitiontime" to action.transitionTime.toDeciSeconds()
-                ),
-            )
+            is ColorTemperatureTransitionAutomationAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findGroup(action.group).id_v1}/action",
+                    method = "PUT",
+                    body = mapOf(
+                        "ct" to action.colorTemperature.tuHueMirek(),
+                        "transitiontime" to action.transitionTime.toDeciSeconds()
+                    ),
+                )
+            }
 
-            is SceneAutomationAction -> V1RuleAction(
-                address = "${hue.findGroup(action.group).id_v1}/action",
-                method = "PUT",
-                body = mapOf(
-                    "scene" to hue.findScene(action.group, action.scene).id_v1.plainId(),
-                    "transitiontime" to action.transitionTime.toDeciSeconds()
-                ),
-            )
+            is SceneAutomationAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findGroup(action.group).id_v1}/action",
+                    method = "PUT",
+                    body = mapOf(
+                        "scene" to hue.findScene(action.group, action.scene).id_v1.plainId(),
+                        "transitiontime" to action.transitionTime.toDeciSeconds()
+                    ),
+                )
+            }
 
-            is DisableSensorAction -> V1RuleAction(
-                address = "${hue.findDeviceByName(action.sensor).id_v1}/config",
-                method = "PUT",
-                body = mapOf("on" to false)
-            )
+            is DisableSensorAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findDeviceByName(action.sensor).id_v1}/config",
+                    method = "PUT",
+                    body = mapOf("on" to false)
+                )
+            }
 
-            is EnableSensorAction -> V1RuleAction(
-                address = "${hue.findDeviceByName(action.sensor).id_v1}/config",
-                method = "PUT",
-                body = mapOf("on" to true)
-            )
+            is EnableSensorAction -> {
+                actions += V1RuleAction(
+                    address = "${hue.findDeviceByName(action.sensor).id_v1}/config",
+                    method = "PUT",
+                    body = mapOf("on" to true)
+                )
+            }
 
             is WaitAutomationAction -> {
                 val sensorId = createWaitAutomation(name, action.duration, action.actions)
-                V1RuleAction(
+                actions += V1RuleAction(
                     address = "/sensors/$sensorId/state",
                     method = "PUT",
                     body = mapOf("status" to 1)
                 )
             }
         }
-    )
+        return ActionsConditions(actions, conditions)
+    }
 
-    private fun createConditions(action: AutomationAction): List<V1RuleCondition> {
-        return action.conditions.map { condition ->
+    private fun createConditions(action: AutomationAction, name: String): ActionsConditions {
+        val actions = mutableListOf<V1RuleAction>()
+        val conditions = mutableListOf<V1RuleCondition>()
+        action.conditions.forEach { condition ->
             when (condition) {
-                is AnyOnCondition -> V1RuleCondition(
-                    address = "${hue.findGroup(condition.group).id_v1}/state/any_on",
-                    operator = "eq",
-                    value = "true"
-                )
+                is AnyOnCondition -> {
+                    conditions += V1RuleCondition(
+                        address = "${hue.findGroup(condition.group).id_v1}/state/any_on",
+                        operator = "eq",
+                        value = "true"
+                    )
+                }
 
-                is AllOffCondition -> V1RuleCondition(
-                    address = "${hue.findGroup(condition.group).id_v1}/state/any_on",
-                    operator = "eq",
-                    value = "false"
-                )
+                is AllOffCondition -> {
+                    conditions += V1RuleCondition(
+                        address = "${hue.findGroup(condition.group).id_v1}/state/any_on",
+                        operator = "eq",
+                        value = "false"
+                    )
+                }
 
-                is TimeOfDayActionCondition -> V1RuleCondition(
-                    address = "/config/localtime",
-                    operator = "in",
-                    value = condition.time.toHueLocalTimePeriod()
-                )
+                is TimeOfDayActionCondition -> {
+                    conditions += V1RuleCondition(
+                        address = "/config/localtime",
+                        operator = "in",
+                        value = condition.time.toHueLocalTimePeriod()
+                    )
+                }
+
+                is PressCounterCondition -> {
+                    val multiplePressSensorId = hue.findSensor(name, ModelId.AUTOMATION_MULTIPLE_PRESSES_EVENT).id
+                    conditions += V1RuleCondition(
+                        address = "/sensors/${multiplePressSensorId}/state/status",
+                        operator = "eq",
+                        value = "${condition.ifPressNumber}"
+                    )
+                    actions += V1RuleAction(
+                        address = "/sensors/${multiplePressSensorId}/state",
+                        method = "PUT",
+                        body = mapOf("status" to condition.nextPressNumber)
+                    )
+                }
             }
         }
+        return ActionsConditions(actions, conditions)
     }
 }

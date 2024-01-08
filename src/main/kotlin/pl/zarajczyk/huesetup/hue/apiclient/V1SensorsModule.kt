@@ -5,7 +5,8 @@ import pl.zarajczyk.huesetup.hue.httpclient.*
 
 enum class ModelId(val modelId: String) {
     AUTOMATION_TIME_EVENT("Automation Time Event"),
-    AUTOMATION_HELPER("Automation Helper")
+    AUTOMATION_HELPER("Automation Helper"),
+    AUTOMATION_MULTIPLE_PRESSES_EVENT("Automation MultiplePresses Event")
 }
 
 class V1SensorsModule(private val httpClient: HueHttpClient) {
@@ -29,15 +30,15 @@ class V1SensorsModule(private val httpClient: HueHttpClient) {
         ?.let { CreateMemorySensorResponse(it) }
         ?: throw RuntimeException("createMemorySensor returned null sensorId")
 
-    private fun randomString(length: Int): String {
+    private fun randomString(length: Int = 32): String {
         val allowedChars = ('A'..'Z') + ('a'..'z')
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
     }
 
-    private fun list() = httpClient
-        .get<SensorsV1>("/rules", ApiVersion.V1)
+    fun list() = httpClient
+        .get<SensorsV1>("/sensors", ApiVersion.V1)
         .value
         .mapValues { (k, v) -> v.copy(id = k) }
         .values
@@ -56,7 +57,9 @@ class V1SensorsModule(private val httpClient: HueHttpClient) {
 data class SensorV1(
     @JsonIgnore
     val id: String = "",
-    val type: String
+    val name: String,
+    val type: String,
+    val modelid: String
 )
 
 data class SensorsV1(
