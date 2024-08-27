@@ -113,15 +113,18 @@ data class TransitionTime(private val hueTime: Int) {
 
 data class Timeout(private val seconds: Int) {
     fun toDuration(): String {
-        val mins = (seconds / 60).toString().padStart(2, '0')
-        val secs = (seconds % 60).toString().padStart(2, '0')
-        return "PT00:$mins:$secs"
+        val hours = (seconds / (60 * 60)).toString().padStart(2, '0')
+        val secondsWithoutHours = seconds % (60 * 60)
+        val mins = (secondsWithoutHours / 60).toString().padStart(2, '0')
+        val secs = (secondsWithoutHours % 60).toString().padStart(2, '0')
+        return "PT$hours:$mins:$secs"
     }
 
     companion object {
-        const val TIMEOUT_REGEXP = "[0-9]{1,4}(min|s)"
+        const val TIMEOUT_REGEXP = "[0-9]{1,4}(h|min|s)"
         fun String.parseTimeout(): Timeout {
             val hueTime = when {
+                this.endsWith("h") -> this.removeSuffix("h").trim().toInt() * 60 * 60
                 this.endsWith("min") -> this.removeSuffix("min").trim().toInt() * 60
                 this.endsWith("s") -> this.removeSuffix("s").trim().toInt()
                 else -> throw RuntimeException("Invalid timeout: $this")
