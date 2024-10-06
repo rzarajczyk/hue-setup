@@ -1,4 +1,7 @@
-# hue-setup
+# Docs:
+Docs: [https://rzarajczyk.github.io/projects-hue-setup/](https://rzarajczyk.github.io/projects-hue-setup/)
+
+
 
 ## Warning
 
