@@ -19,7 +19,7 @@ class LightV1ComparisonApplier(private val hue: HueSystemClient) :
     override fun getExistingResources() = hue.apiClient.v1_lights.list().values.map { HueEntityWrapper(it.mac(), it) }
 
     override fun onUnwanted(hueEntityWrapper: HueEntityWrapper<LightV1>) {
-        println("Light ≪${hueEntityWrapper.uid}≫ exists, but is NOT MENTIONED in the config")
+        println("Light ≪${hueEntityWrapper.uid}≫ (${hueEntityWrapper.entity.name}) exists, but is NOT MENTIONED in the config")
     }
 
     override fun onMissing(definition: LightDefinition) {

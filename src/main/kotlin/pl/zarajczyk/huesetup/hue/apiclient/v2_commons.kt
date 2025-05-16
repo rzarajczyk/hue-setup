@@ -8,7 +8,7 @@ data class Reference(
 @Suppress("unused")
 enum class RType {
     device, bridge_home, room, zone, light, button, relative_rotary, temperature, light_level, motion, camera_motion, entertainment, contact, tamper, grouped_light, device_power, zigbee_bridge_connectivity, zigbee_connectivity, zgp_connectivity, bridge, zigbee_device_discovery, homekit, matter, matter_fabric, scene, entertainment_configuration, public_image, auth_v1, behavior_script, behavior_instance, geofence, geofence_client, geolocation, smart_scene,
-    taurus_7455, device_software_update
+    taurus_7455, device_software_update, motion_area_candidate
 }
 
 enum class Archetype {
